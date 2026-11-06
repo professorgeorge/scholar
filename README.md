@@ -1,77 +1,31 @@
-# Dr. Babu George — Disciplinary Scholarship & Epistemic Portal
+# Babu George — Research & Scholarship
 
-An interactive academic portal showcasing the scholarship, intellectual trajectory, foundational disciplines, and interconnections of **Dr. Babu George** (Alcorn State University), configured for immediate deployment to **Cloudflare Pages**.
+A React/TypeScript academic profile with four connected research themes, a CV-based searchable publication catalog, selected works, an accessible research map, academic background, and teaching resources. Light and dark themes and responsive mobile navigation are included.
 
----
+## Develop and validate
 
-## 🏛️ Epistemic Architecture
-
-This portal is structured around a three-tier epistemic hierarchy:
-
-```
-[ Tier 1: Foundational Disciplines ]
-    ├── Philosophy & Epistemology (Ontological critique, limits to growth, ethics of AI)
-    ├── Psychology & Behavioral Science (Cognitive dissonance, place attachment, UTAUT-2)
-    ├── Economics & Political Economy (Financial inclusion, platform economics)
-    └── Sociology & Spatial Geographies (Border regimes, digital divides)
-                 │
-                 ▼
-[ Tier 2: Strategic Imperatives & Organizational Transformations ]
-    ├── Boardroom Governance & Stewardship
-    ├── Institutional Metamorphosis & Change Management
-    └── Disruptive Technology & AI Integration
-                 │
-                 ▼
-[ Tier 3: Empirical Proving Grounds (Peripheral Laboratories) ]
-    ├── High-Touch Service & Mobility Systems
-    ├── Higher Education Institutions
-    └── Decentralized Financial Infrastructures (DFS)
-```
-
----
-
-## 🚀 One-Click Deployment to Cloudflare Pages
-
-### Option 1: Direct Command-Line Deployment (Fastest)
-
-```bash
-# 1. Build the production site
-npm run build
-
-# 2. Deploy directly to Cloudflare Pages via Wrangler CLI
-npx wrangler pages deploy dist --project-name=babu-george-scholarship
-```
-
-### Option 2: Continuous Deployment via GitHub (Recommended)
-
-1. Push this repository to GitHub:
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit of scholarly portal"
-   git remote add origin https://github.com/YOUR_USERNAME/babu-george-scholarship.git
-   git push -u origin main
-   ```
-2. In the **Cloudflare Dashboard**, navigate to **Workers & Pages** $\rightarrow$ **Create application** $\rightarrow$ **Pages** $\rightarrow$ **Connect to Git**.
-3. Select your repository and set:
-   * **Framework preset:** `Vite`
-   * **Build command:** `npm run build`
-   * **Build output directory:** `dist`
-4. Click **Save and Deploy**. Cloudflare will deploy to a global edge URL (e.g., `babu-george-scholarship.pages.dev`).
-5. Under **Custom domains**, add `babugeorge.com` or your chosen academic domain. Cloudflare provisions and maintains free SSL certificates automatically.
-
----
-
-## 💻 Local Development
-
-```bash
-# Start local dev server at http://localhost:3000
+```sh
+npm ci
 npm run dev
-
-# Run production build
+npm test
+npm run check
 npm run build
-
-# Preview production build locally
-npm run preview
 ```
 
+The production build is `dist/`. Node 22 is used in CI. Site content is in `src/data/profile.json`; research framing is in `src/data/themes.ts`.
+
+## Update from a CV
+
+See [the CV update guide](docs/CV-UPDATES.md). The local route works with Codex without an additional API key. An optional API-backed watcher and GitHub workflow can produce review proposals. Updates preserve editorial choices and never delete omitted publications. Citation metrics are not inferred from a CV.
+
+## Publish
+
+Repository: https://github.com/professorgeorge/scholar
+
+Cloudflare Pages should use production branch `main`, build command `npm run build`, output directory `dist`, and repository root as the build root. Pushes to the connected branch trigger deployment when the Git integration is enabled. The existing Pages project configuration is retained; this repository does not create a separate hosting service.
+
+The production Cloudflare project may have a different name than the historical `wrangler.toml` project name. Use the existing connected Pages project in the Cloudflare dashboard as the source of truth before any CLI deployment.
+
+## Content provenance
+
+The initial CV import is dated 2026-11-06 and uses the author-supplied CV dated 2026-07-31. Publication counts include books, chapters, conferences and future-dated works. Original citations are retained, and publisher metadata is not independently verified. See Google Scholar for current citation metrics. No private source CV or API credentials are included in the deployment.

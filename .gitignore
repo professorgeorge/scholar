@@ -5,3 +5,10 @@ dist-ssr
 .DS_Store
 .vscode
 .idea
+
+
+.cv-work/
+.env
+.env.*
+!.env.example
+*.log

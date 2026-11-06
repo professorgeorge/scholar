@@ -1,0 +1,66 @@
+name: Propose CV update
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths: ["cv/current.txt"]
+permissions:
+  contents: write
+  pull-requests: write
+concurrency:
+  group: cv-update
+  cancel-in-progress: false
+jobs:
+  propose:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Check configuration
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: |
+          test -s cv/current.txt || { echo 'Add a publication-safe CV to cv/current.txt or use the local Codex workflow.'; exit 1; }
+          test -n "$OPENAI_API_KEY" || { echo 'Set repository secret OPENAI_API_KEY, or use the local workflow without a key.'; exit 1; }
+          test -n "$OPENAI_MODEL" || { echo 'Set repository variable OPENAI_MODEL to a structured-output-capable model available to your account.'; exit 1; }
+      - name: Generate evidence-backed proposal
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL }}
+        run: node scripts/cv-update.mjs propose --text cv/current.txt
+      - name: Stage candidate on review branch
+        run: |
+          git switch -c "codex/cv-update-${GITHUB_RUN_ID}-${GITHUB_RUN_ATTEMPT}"
+          node scripts/cv-update.mjs apply --text cv/current.txt --approve
+          npm test
+          npm run check
+          npm run build
+      - name: Open review pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if git diff --quiet -- src/data/profile.json; then
+            echo 'No website changes.'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add src/data/profile.json
+          git commit -m 'Propose CV-based research profile update'
+          git push origin HEAD
+          gh pr create --base main --title 'Review CV-based research profile update' --body-file .cv-work/review.md
+      - uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: cv-review
+          path: |
+            .cv-work/review.md
+            .cv-work/proposal.json
+          include-hidden-files: true
+          retention-days: 7
